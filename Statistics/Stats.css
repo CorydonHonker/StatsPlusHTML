@@ -1,0 +1,15 @@
+.superDiv{
+	z-index: 0;
+	width: : 1000px;
+	height: : 100%;
+	border:solid;
+	border-color:blue;
+	border-width: 1px;
+	overflow-y:visible;
+}
+.dataBar{
+	white-space: nowrap; 
+	overflow: visible;
+	position: absolute;
+	position: relative;
+}
