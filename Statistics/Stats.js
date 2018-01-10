@@ -1,9 +1,7 @@
 var display = document.getElementById('superDiv');
 
 dataBar=new Object();
-//(255).toString(16) == 'ff'
-//max decimal=16777215
-dataBar.color=(10555255).toString(16);
+dataBar.name="name";
 dataBar.height=1;
 dataBar.width=1;
 dataBar.xPos=0;
@@ -14,64 +12,73 @@ dataBar.htmlList=[];
 dataBar.htmlExample = '<div style="z-index:'+dataBar.zIndex+';background-color:#'+dataBar.color+';left:'+dataBar.xPos+'px;top:'+dataBar.yPos+'px;width:'+dataBar.width+'px;height:'+dataBar.height+'px;"; id="dataBar'+dataBar.ID+'" class="dataBar"></div>';	
 
 rawData=new Object();
-rawData.dataList=[1,2,0,4,5,9,20];
+rawData.dataList=[];
+rawData.dataNames=[];rawData.newRank=[];
+dataScore=[];
+dataScoreOrder=[];
 
 rawData.rndGen=function(){
-	for(x=0;x<10;x++){
-		rawData.dataList[x]=Math.round(Math.random()*2023);
+	for(x=0;x<100;x++){
+		rawData.dataList[x]=Math.round(Math.random()*999);
 	}
 }
-//rawData.rndGen();
 dataBar.create = function(){
-		dataBar.htmlExample = '<div style="z-index:'+dataBar.zIndex+';background-color:#'+dataBar.color+';left:'+dataBar.xPos+'px;top:'+dataBar.yPos+'px;width:'+dataBar.width+'px;height:'+dataBar.height+'px;"; id="dataBar'+dataBar.ID+'" class="dataBar">Lb'+dataBar.ID+' score='+dataBar.width+'</div>';	
+		dataBar.htmlExample = '<div style="z-index:'+dataBar.zIndex+';background-color:#'+dataBar.color+';left:'+dataBar.xPos+'px;top:'+dataBar.yPos+'px;width:'+dataBar.width+'px;height:'+dataBar.height+'px;"; id="dataBar'+dataBar.ID+'" class="dataBar">['+dataBar.name+']  ['+dataBar.width+']</div>';	
 		display.insertAdjacentHTML('beforeend',dataBar.htmlExample);
-		dataBar.htmlList[dataBar.ID]=document.getElementById("dataBar"+dataBar.ID+"");
+		dataBar.htmlList[dataBar.ID]=document.getElementById("dataBar"+dataBar.ID+"");	
+		//color calculations
+		widthMax=1000;
+		middleZone=(widthMax/3)+(widthMax/6);
+		redZone=(-3*Math.abs(dataBar.width)+widthMax)/widthMax;
+		greenZone=(-3*Math.abs(dataBar.width-middleZone)+widthMax)/widthMax;
+		blueZone=(-3*Math.abs(dataBar.width-widthMax)+widthMax)/widthMax;
+		//setColors
+		newRed=redZone*255;
+		newGreen=greenZone*255;
+		newBlue=blueZone*255;
+		dataBar.htmlList[dataBar.ID].style.backgroundColor="rgb("+newRed+","+newGreen+","+newBlue+")";
 }
 rawData.InitialOrder=function(){
 	maxHeight=Math.max.apply(Math, rawData.dataList);
-	for (var i = rawData.dataList.length - 1; i >= 0; i--) {
-		dataBar.color=((i*700)+16000000).toString(16);
-		dataBar.width=Math.round(1280*rawData.dataList[i]/maxHeight);
-		//console.log(dataBar.width);
+	for (var i = 0; i < rawData.dataList.length; i++) {
+		dataBar.width=Math.round(1000*rawData.dataList[i]/maxHeight);
+		dataScore[i]=dataBar.width;
+		dataScoreOrder[i]=dataBar.width;
+		dataBar.name=rawData.dataNames[i];
+		if(dataBar.name==undefined){
+			dataBar.name="Lbl"+i+""
+		}
 		dataBar.height=20;
-		//console.log(dataBar.height)
-		dataBar.yPos=i;
-		//dataBar.zIndex=i+9;
+		dataBar.yPos=i*dataBar.height;
 		dataBar.ID=i;
-		dataBar.yPos=0
-		dataBar.create();
-		//console.log(dataBar.htmlExample);
+		dataBar.create();}
+}
+rawData.findOrder=function(){
+	var indexVal=0;
+	dataScoreOrder.sort(function(a, b){return b-a});
+	for(x=0;x<dataScore.length;x++){
+		indexVal=dataScore.indexOf(dataScoreOrder[x]);
+		if(dataScore[indexVal]>-1){
+			rawData.newRank[x]=indexVal;
+			dataScore[indexVal]=-1;
+		}
 	}
 }
+rawData.reOrderChart=function(){
+	rawData.findOrder();
+	var newPos=0;
+	for(x=0;x<rawData.newRank.length;x++){
+		newPos=x*20;
+		dataBar.htmlList[rawData.newRank[x]].style.top=""+newPos+"px";
+	}
+}
+//functions run
+//creates randomList
+rawData.rndGen();
 rawData.InitialOrder();
-//find number of bars
-//color loop
-dataBar.reDefineBar = function(){
-	rawData.dataList.sort(function(a, b){return a-b});
-	maxHeight=rawData.dataList[rawData.dataList.length-1];
-	for (var i = rawData.dataList.length - 1; i >= 0; i--) {
-		dataBar.color=((i*700)+16000000).toString(16);
-		dataBar.width=Math.round(1280*rawData.dataList[i]/maxHeight);
-		dataBar.height=20;
-		//console.log(dataBar.height)
-		dataBar.yPos=i;
-		//dataBar.zIndex=i+9;
-		dataBar.ID=i;
-		dataBar.yPos=0
-		dataBar.create();
-		//console.log(dataBar.htmlExample);
-	}
-}
-//dataBar.reDefineBar();
-function test(){
-	for(x=0;x<100;x++){
-		dataBar.height=1;
-		dataBar.width=Math.round(100*Math.random());
-		dataBar.xPos=0;
-		dataBar.yPos=x*2;
-		dataBar.ID=x;
-		dataBar.zIndex=9;
-		dataBar.create();
-		//console.log(dataBar.htmlExample);
-	}
-}
+rawData.reOrderChart();
+
+//Lists for testing
+//rawData.dataList=[112073,96046,95809,87280,78630,69966,67579,61584,58685,41027,25942,25900,20814,18560,18156,16142,15301,12970,12602,12475,12371,12245,11917,12217,11536,11474,11200,9947,9850,9662,8475,7435,6788,6732,6610,6375,6343,6243,5896,5812,5604,5391,5138,4495,4215,4126,3944,3847,3447,3365,3203,3165,3107,2954,2855,2841,2832,2720,2593,2504,2455,2407,2324,2247,2199,2195,2120,2052,2039,1995,1974,1774,1758,1734,1731,1706,1666,1631,1587,1575,1567,1563,1418,1358,1350,1306,1238,1177,1157,1150,1139,1113,1091,1091,939,936,891,879,773,730,685,676,624,605,600,593,584,575,570,570,566,"555",548,548,528,516,434,377,375,343,310,306,302,298,212,194,193];
+//rawData.dataNames=["fox","horse","dragon","dog","wolf","pony","cat","rabbit","unicorn","pegasus","tiger","bear","lion","fish","robot","demon","lizard","goat","bat","shark","hedgehog","deer","monster","husky","mouse","snake","raccoon","skunk","leopard","otter","hyena75","squirrel","gryphon","cheetah","fennec","panda","sheep","rat","lynx","elf","zebra","kangaroo","jackal","turtle","sergal","chicken","monkey","panther","crocodile","imp","whale","chipmunk","coyote","alligator","raptor","orca","antelope","donkey","cougar","polar_bear","orc","collie","reindeer","frog","echidna","naga","owl","giraffe","rhinoceros","ferret","kobold","khajiit","duck","badger","elephant","opossum","tauren","boar","dolphin","tyrannosaurus_rex","gazelle","wyvern","jaguar","crow","cobra","octopus","weasel","buffalo","penguin","dingo","eagle","mongoose","mink","gorilla","harpy","gecko","lombax","beaver","triceratops","phoenix","hamster","serval","jackalope","ermine","falcon","armadillo","ocelot","moose","koala","salamander","hawk","raven","carb","porcupine","vulture","iguana","oryx","sloth","turkey","seal","llama","mole","elk","pigeon","platypus","python","manticore"];
+
