@@ -10,14 +10,14 @@
 		<div id="buttonDiv">
 		<table>
 		<tr><td>
+		<button onclick="rndGen()">Random Mono</button>
 		<button onclick="rndRainbow()">Rainbow RNG</button>
 		<button onclick="sinRainbow()">Rainbow Sin</button>
-		<button onclick="colorBias()">Black</button>
 		</td></tr>
 		<tr><td>
+		<button onclick="MonoChrome()">Mono Chromatic</button>
 		<button onclick="averagePixel()">Color average</button>
 		<button onclick="drawImage()">draw image</button>
-		<button onclick="UploadPrt()">newImage</button>
 		</td></tr>
 		<tr><td>
 		<button onclick="deltaColor(0,10)">add red</button>
@@ -32,11 +32,16 @@
 		<tr><td>
 		<button onclick="noColors()">Black Lines</button>
 		<button onclick="noLines()">Black Blobs</button>
-		<button onclick="MonoChrome()">Mono Chromatic</button>
+		<button onclick="colorBias()">Black</button>
+		</td></tr>
+		<tr><td>
+		<button onclick="gameOfLife(1)">1 Step</button>
+		<button onclick="gameOfLife(10)">10 Step</button>
+		<button onclick="gameOfLife(100)">100 Step</button>
 		</td></tr>
 		</table>
 		</div>
-		<img style="visibility:hidden" id="srcImg" src="penguin.jpg"/>
-		<script src="CanvasPlus.js"></script>
+		<img id="srcImg" src="penguin.jpg"/>
+		<script style="visibility: hidden" src="CanvasPlus.js"></script>
 	</body>
 </html>
