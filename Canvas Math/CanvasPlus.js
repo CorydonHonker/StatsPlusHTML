@@ -7,6 +7,40 @@ ctx.fillStyle = "rgba(255, 255, 255, 1)";
 ctx.fillRect(0,0,LWcanvas,LWcanvas);
 var pixelCount=(LWcanvas-BorderBuffer)*(LWcanvas-BorderBuffer);
 
+function gameOfLife(steps){
+var imgData=ctx.getImageData(0,0,c.width,c.height);
+var ArLength=imgData.data.length;
+var alive=0;
+for(x=0;x<ArLength;x+=4){
+	alive=0;
+	//top/bottom
+	if(imgData.data[x-(c.width*4)]==0){alive++;}
+	if(imgData.data[x+(c.width*4)]==0){alive++;}
+	//top/bottom left
+	if(imgData.data[x-4-(c.width*4)]==0){alive++;}
+	if(imgData.data[x-4+(c.width*4)]==0){alive++;}
+	//top/bottom right
+	if(imgData.data[x+4-(c.width*4)]==0){alive++;}
+	if(imgData.data[x+4+(c.width*4)]==0){alive++;}
+	//left/right
+	if(imgData.data[x-4]==0){alive++;}
+	if(imgData.data[x+4]==0){alive++;}
+	//logic
+	if(alive<3){
+		imgData.data[x]=imgData.data[x+1]=imgData.data[x+2]=255;
+	}else if(alive>4){
+		imgData.data[x]=imgData.data[x+1]=imgData.data[x+2]=255;
+	}else if(alive==3&&imgData.data[x]==255){
+		imgData.data[x]=imgData.data[x+1]=imgData.data[x+2]=0;
+	}
+}
+	ctx.putImageData(imgData,0,0);
+	steps-=1;
+	if(steps<1){return 1;}
+	setTimeout(function(){gameOfLife(steps);},0);	
+}
+
+
 function UploadPrt()
 {
     var inputFileToLoad = document.createElement("input");
@@ -39,7 +73,7 @@ function loadImageFileAsURL()
         }
     }
 }
-
+UploadPrt();
 function deltaColor(color, delta){
 var imgData=ctx.getImageData(0,0,c.width,c.height);
 	for (var i=0;i<imgData.data.length;i+=4){
