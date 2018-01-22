@@ -74,6 +74,7 @@ function loadImageFileAsURL()
     }
 }
 UploadPrt();
+
 function deltaColor(color, delta){
 var imgData=ctx.getImageData(0,0,c.width,c.height);
 	for (var i=0;i<imgData.data.length;i+=4){
@@ -187,20 +188,6 @@ function rndRainbow(){
 }
 
 
-//function rndRainbow(){
-//	for(y=BorderBuffer;y<LWcanvas-BorderBuffer;y++){
-//		for(x=BorderBuffer;x<LWcanvas-BorderBuffer;x++){	
-//			rndRed=Math.floor(Math.random() * 256);	
-//			rndBlue=Math.floor(Math.random() * 256);	
-//			rndGreen=Math.floor(Math.random() * 256);
-//			imgData=ctx.getImageData(x,y,1,1);
-//				imgData.data[0]=rndRed;	
-//				imgData.data[1]=rndGreen;
-//				imgData.data[2]=rndBlue;
-//			ctx.putImageData(imgData,x,y);	
-//		}
-//	}
-//}
 
 
 function rndGen(){
@@ -223,24 +210,6 @@ function rndGen(){
 }
 
 var imgData;
-function Roamer(){
-	for(y=0;y<LWcanvas;y++){
-		for(x=0;x<LWcanvas;x++){
-			imgData=ctx.getImageData(x,y,1,1);
-			if(imgData.data[0]<128||imgData.data[1]<128||imgData.data[2]<128){
-				imgData.data[0]=0;
-				imgData.data[1]=0;
-				imgData.data[2]=0;
-			}else{
-				imgData.data[0]=255;
-				imgData.data[1]=255;
-				imgData.data[2]=255;
-			}
-			ctx.putImageData(imgData,x,y);
-		}
-	}
-}
-
 var midTest=128;
 function MonoChrome(){
 	var imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
