@@ -1,12 +1,42 @@
 <!doctype html>
 <html>
 	<head>
-		<title>LIFE</title>
+		<title>imageMan</title>
 		<meta charset="utf-8">
 		<link rel="stylesheet" type="text/css" href="canvasStyle.css" />
 	</head>
 	<body>	
 		<canvas id="CanvasID" width="512" height="512"></canvas>
-		<script src="mouseClick.js"></script>
+		<div id="buttonDiv">
+		<table>
+		<tr><td>
+		<button onclick="rndRainbow()">Rainbow RNG</button>
+		<button onclick="sinRainbow()">Rainbow Sin</button>
+		<button onclick="colorBias()">Black</button>
+		</td></tr>
+		<tr><td>
+		<button onclick="averagePixel()">Color average</button>
+		<button onclick="drawImage()">draw image</button>
+		<button onclick="UploadPrt()">newImage</button>
+		</td></tr>
+		<tr><td>
+		<button onclick="deltaColor(0,10)">add red</button>
+		<button onclick="deltaColor(1,10)">add green</button>
+		<button onclick="deltaColor(2,10)">add blue</button>
+		</td></tr>
+		<tr><td>
+		<button onclick="deltaColor(0,-10)">sub red</button>
+		<button onclick="deltaColor(1,-10)">sub green</button>
+		<button onclick="deltaColor(2,-10)">sub blue</button>
+		</td></tr>
+		<tr><td>
+		<button onclick="noColors()">Black Lines</button>
+		<button onclick="noLines()">Black Blobs</button>
+		<button onclick="MonoChrome()">Mono Chromatic</button>
+		</td></tr>
+		</table>
+		</div>
+		<img id="srcImg" src="penguin.jpg"/>
+		<script src="CanvasPlus.js"></script>
 	</body>
 </html>
