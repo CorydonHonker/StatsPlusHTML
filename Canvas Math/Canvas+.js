@@ -3,56 +3,54 @@ var ctx = canvas.getContext("2d");
 var c =canvas;
 var LWcanvas=512;
 var BorderBuffer=1;
-ctx.fillStyle = "rgba(255,255,255, 1)";
+ctx.fillStyle = "rgba(255, 255, 255, 1)";
 ctx.fillRect(0,0,LWcanvas,LWcanvas);
+var pixelCount=(LWcanvas-BorderBuffer)*(LWcanvas-BorderBuffer);
 
-var pixelLevel=0;
-var pixelCount=0;
-var ratePixel=254;
-function allColors(){
-//pixel count
-//loop
+function UploadPrt()
+{
+    var inputFileToLoad = document.createElement("input");
+    inputFileToLoad.type = "file";
+    inputFileToLoad.id = "inputFileToLoad";
+    document.body.appendChild(inputFileToLoad);
+
+    var buttonLoadFile = document.createElement("button");
+    buttonLoadFile.onclick = loadImageFileAsURL;
+    buttonLoadFile.textContent = "Load Selected File";
+    document.body.appendChild(buttonLoadFile);
+}
+
+function loadImageFileAsURL()
+{
+    var filesSelected = document.getElementById("inputFileToLoad").files;
+    if (filesSelected.length > 0)
+    {
+        var fileToLoad = filesSelected[0];
+
+        if (fileToLoad.type.match("image.*"))
+        {
+            var fileReader = new FileReader();
+            fileReader.onload = function(fileLoadedEvent) 
+            {
+                var imageLoaded = document.getElementById("srcImg");
+                imageLoaded.src = fileLoadedEvent.target.result;
+            };
+            fileReader.readAsDataURL(fileToLoad);
+        }
+    }
+}
+
+function deltaColor(color, delta){
 var imgData=ctx.getImageData(0,0,c.width,c.height);
-imgData.data[0]-=ratePixel;
-if(imgData.data[0]==0){
-	imgData.data[1]-=ratePixel;
-	imgData.data[0]=255;
-}
-if(imgData.data[1]==0){
-	imgData.data[2]-=ratePixel;
-	imgData.data[1]=255;
-}
-for(x=4;x<imgData.data.length;x+=4){
-	if(imgData.data[x-2]==0){
-		imgData.data[x]-=ratePixel;
-		imgData.data[x-2]=255;
-		//imgData.data[x-3]=255;
-		//imgData.data[x-4]=255;
+	for (var i=0;i<imgData.data.length;i+=4){
+		  imgData.data[i+color]=delta+imgData.data[i+color];
 	}
-	if(imgData.data[x]==0){
-		imgData.data[x+1]-=ratePixel;
-		imgData.data[x]=255;
-	}
-	if(imgData.data[x+1]==0){
-		imgData.data[x+2]-=ratePixel;
-		imgData.data[x+1]=255;
-	}
-	//console.log(imgData.data.length,x);
-}
-//imgData.data[pixelCount+1]
-	pixelLevel++;
-	//console.log(pixelLevel);
 	ctx.putImageData(imgData,0,0);
-	setTimeout(function(){allColors();},0);
-	
 }
 
 function noColors(){
 var imgData=ctx.getImageData(0,0,c.width,c.height);
-imgData.data[0]=0;
-imgData.data[1]=0;
-imgData.data[2]=0;
-for(x=4;x<imgData.data.length;x+=4){
+for(x=0;x<imgData.data.length;x+=4){
 	//||imgData.data[x+c.width+2]==0
 	if(imgData.data[x-2]==0){
 		imgData.data[x]-=22;
@@ -64,24 +62,67 @@ for(x=4;x<imgData.data.length;x+=4){
 		imgData.data[x+2]-=23;
 	}
 }
+	if(c.width*c.height==checkImage()){return 1;}
 	ctx.putImageData(imgData,0,0);
 	setTimeout(function(){noColors();},0);	
 }
 function noLines(){
 var imgData=ctx.getImageData(0,0,c.width,c.height);
-imgData.data[0]=0;
-imgData.data[1]=0;
-imgData.data[2]=0;
-for(x=4;x<imgData.data.length;x+=4){
-	//||imgData.data[x+c.width+2]==0
-	if(imgData.data[x+2+c.width]==0||imgData.data[x-2]==0){imgData.data[x]-=22;}
-	//if(){imgData.data[x]-=22;}
-	if(imgData.data[x]==0){imgData.data[x+1]-=22;}
-	if(imgData.data[x+1]==0){imgData.data[x+2]-=23;}
+var ArLength=imgData.data.length;
+var burnRate=10;
+for(x=0;x<ArLength;x+=4){
+	if(imgData.data[x-2-(c.width*4)]==0||imgData.data[x+2+(c.width*4)]==0||imgData.data[x-2]==0||imgData.data[x+6]==0){imgData.data[x]-=burnRate;}
+	if(imgData.data[x]==0){imgData.data[x+1]-=burnRate;}
+	if(imgData.data[x+1]==0){imgData.data[x+2]-=burnRate;}
 }
+	if(c.width*c.height==checkImage()){return 1;}
 	ctx.putImageData(imgData,0,0);
 	setTimeout(function(){noLines();},0);	
 }
+function checkImage(){
+var imgData=ctx.getImageData(0,0,c.width,c.height);
+var count=0;
+for(x=0;x<imgData.data.length;x+=4){
+	if(imgData.data[x]==0&&imgData.data[x+1]==0&&imgData.data[x+2]==0){count++;}
+		
+	}
+return count;
+}
+
+var aveRed=0;
+var aveGreen=0;
+var aveBlue=0;
+function averagePixel(){
+	for(y=BorderBuffer;y<LWcanvas-BorderBuffer;y++){
+		for(x=BorderBuffer;x<LWcanvas-BorderBuffer;x++){
+			imgData=ctx.getImageData(x,y,1,1);
+			aveRed+=imgData.data[0];
+			aveGreen+=imgData.data[1];
+			aveBlue+=imgData.data[2];	
+		}
+	}
+		
+		aveRed=Math.floor(aveRed/pixelCount);
+		aveGreen=Math.floor(aveGreen/pixelCount);
+		aveBlue=Math.floor(aveBlue/pixelCount);
+
+		//console.log(aveRed,aveGreen,aveBlue,pixelCount);
+		ctx.fillStyle ="rgba("+aveRed+","+aveGreen+","+aveBlue+", 1)";
+		ctx.fillRect(0,0,LWcanvas,LWcanvas);
+
+	
+}
+
+function drawImage(){
+	var img=document.getElementById("srcImg");
+	ctx.drawImage(img,0,0,LWcanvas,LWcanvas);
+}
+
+function colorBias(){		
+	ctx.fillStyle ="rgba(0,0,0, 1)";
+	ctx.fillRect(0,0,LWcanvas,LWcanvas);
+}
+
 var rndRed;
 var rndGreen;
 var rndBlue;
@@ -101,9 +142,9 @@ function sinRainbow(){
 function rndRainbow(){
 	var imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
 	for (var i=0;i<imgData.data.length;i+=4){	
-			rndRed=Math.floor(Math.random() * 250);	
-			rndBlue=Math.floor(Math.random() * 250);	
-			rndGreen=Math.floor(Math.random() * 250);
+			rndRed=Math.floor(Math.random() * 256);	
+			rndBlue=Math.floor(Math.random() * 256);	
+			rndGreen=Math.floor(Math.random() * 256);
 			imgData.data[i]=rndRed;	
 			imgData.data[i+1]=rndGreen;
 			imgData.data[i+2]=rndBlue;
@@ -112,7 +153,22 @@ function rndRainbow(){
 }
 
 
-var rndPixel;
+//function rndRainbow(){
+//	for(y=BorderBuffer;y<LWcanvas-BorderBuffer;y++){
+//		for(x=BorderBuffer;x<LWcanvas-BorderBuffer;x++){	
+//			rndRed=Math.floor(Math.random() * 256);	
+//			rndBlue=Math.floor(Math.random() * 256);	
+//			rndGreen=Math.floor(Math.random() * 256);
+//			imgData=ctx.getImageData(x,y,1,1);
+//				imgData.data[0]=rndRed;	
+//				imgData.data[1]=rndGreen;
+//				imgData.data[2]=rndBlue;
+//			ctx.putImageData(imgData,x,y);	
+//		}
+//	}
+//}
+
+
 function rndGen(){
 	for(y=BorderBuffer;y<LWcanvas-BorderBuffer;y++){
 		for(x=BorderBuffer;x<LWcanvas-BorderBuffer;x++){	
@@ -151,16 +207,23 @@ function Roamer(){
 	}
 }
 
-function MonoChrome(){	
-	var imgData=ctx.getImageData(0,0,c.width,c.height);
+var midTest=128;
+function MonoChrome(){
+	var imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
 	for (var i=0;i<imgData.data.length;i+=4){
-		if(imgData.data[i]<128||imgData.data[i+1]<128||imgData.data[i+2]<128){
+		if(imgData.data[i]<midTest){
 			imgData.data[i]=0;
-			imgData.data[i+1]=0;
-			imgData.data[i+2]=0;
 		}else{
 			imgData.data[i]=255;
+		}
+		if(imgData.data[i+1]<midTest){
+			imgData.data[i+1]=0;
+		}else{
 			imgData.data[i+1]=255;
+		}
+		if(imgData.data[i+2]<midTest){
+			imgData.data[i+2]=0;
+		}else{
 			imgData.data[i+2]=255;
 		}
 	}
