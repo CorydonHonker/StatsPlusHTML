@@ -1,84 +1,133 @@
-var display = document.getElementById('superDiv');
+var display = document.getElementById('dataTable');
 
 dataBar=new Object();
 dataBar.name="name";
-dataBar.height=1;
-dataBar.width=1;
-dataBar.xPos=0;
-dataBar.yPos=0;
+dataBar.color="rbg(1,1,1)";
+dataBar.percent=0;
 dataBar.ID=0;
-dataBar.zIndex=9;
 dataBar.htmlList=[];
-dataBar.htmlExample = '<div style="z-index:'+dataBar.zIndex+';background-color:#'+dataBar.color+';left:'+dataBar.xPos+'px;top:'+dataBar.yPos+'px;width:'+dataBar.width+'px;height:'+dataBar.height+'px;"; id="dataBar'+dataBar.ID+'" class="dataBar"></div>';	
 
 rawData=new Object();
-rawData.dataList=[];
-rawData.dataNames=[];rawData.newRank=[];
-dataScore=[];
-dataScoreOrder=[];
+dataBar.htmlInsert=0;
+rawData.inputList=[[0],[0],[0]];
+rawData.rowNames=['Lbl0','Lbl1','Lbl2'];
+rawData.placeValue=[];
 
-rawData.rndGen=function(){
-	for(x=0;x<100;x++){
-		rawData.dataList[x]=Math.round(Math.random()*999);
-	}
+rawOrder=[[],[],[]];
+newOrder=[[],[],[]];
+
+var tableTemplate="<tr id='TableHead'><td>Name</td><td>Value A</td><td>Value B</td><td>Value C</td><td>Place</td></tr>"
+function htmlPrep(rowID,rowName,valueA,valueB,valueC,place){
+	temp ="<tr id=row"+rowID+"><td class='dataName'>["+rowName+"]</td><td class='dataValue'>["+valueA+"]</td><td class='dataValue'>["+valueB+"]</td><td class='dataValue'>["+valueC+"]</td><td class='dataOrderScore'>["+place+"]</td></tr>";
+	return temp;
 }
 dataBar.create = function(){
-		dataBar.htmlExample = '<div style="z-index:'+dataBar.zIndex+';background-color:#'+dataBar.color+';left:'+dataBar.xPos+'px;top:'+dataBar.yPos+'px;width:'+dataBar.width+'px;height:'+dataBar.height+'px;"; id="dataBar'+dataBar.ID+'" class="dataBar">['+dataBar.name+']  ['+dataBar.width+']</div>';	
-		display.insertAdjacentHTML('beforeend',dataBar.htmlExample);
-		dataBar.htmlList[dataBar.ID]=document.getElementById("dataBar"+dataBar.ID+"");	
-		//color calculations
-		widthMax=1000;
-		middleZone=(widthMax/3)+(widthMax/6);
-		redZone=(-3*Math.abs(dataBar.width)+widthMax)/widthMax;
-		greenZone=(-3*Math.abs(dataBar.width-middleZone)+widthMax)/widthMax;
-		blueZone=(-3*Math.abs(dataBar.width-widthMax)+widthMax)/widthMax;
-		//setColors
-		newRed=redZone*255;
-		newGreen=greenZone*255;
-		newBlue=blueZone*255;
-		dataBar.htmlList[dataBar.ID].style.backgroundColor="rgb("+newRed+","+newGreen+","+newBlue+")";
+		dataBar.htmlInsert=htmlPrep(
+			dataBar.ID,
+			dataBar.name,
+			rawData.inputList[0][dataBar.ID],
+			rawData.inputList[1][dataBar.ID],
+			rawData.inputList[2][dataBar.ID],
+			rawData.placeValue[dataBar.ID],
+		);
+		display.insertAdjacentHTML('beforeend',dataBar.htmlInsert);
+		dataBar.htmlList[dataBar.ID]=document.getElementById("row"+dataBar.ID+"");
+		dataBar.htmlList[dataBar.ID].style.backgroundColor="rgb(100,100,200)";
+		//colors
+	
 }
 rawData.InitialOrder=function(){
-	maxHeight=Math.max.apply(Math, rawData.dataList);
-	for (var i = 0; i < rawData.dataList.length; i++) {
-		dataBar.width=Math.round(1000*rawData.dataList[i]/maxHeight);
-		dataScore[i]=dataBar.width;
-		dataScoreOrder[i]=dataBar.width;
-		dataBar.name=rawData.dataNames[i];
+rawData.placeValue=[];
+dataBar.htmlList=[];
+rawOrder=[[],[],[]];
+newOrder=[[],[],[]];
+	document.getElementById('dataTable').innerHTML=tableTemplate;
+	for (var i = 0; i < rawData.inputList[0].length; i++) {
+		for(y=0;y<rawData.inputList.length;y++){
+			newOrder[y][i]=rawOrder[y][i]=rawData.inputList[y][i];
+		}
+		dataBar.name=rawData.rowNames[i];
 		if(dataBar.name==undefined){
-			dataBar.name="Lbl"+i+""
+			dataBar.name="Lbl"+i+"";
 		}
-		dataBar.height=20;
-		dataBar.yPos=i*dataBar.height;
+		rawData.placeValue[i]=i;
 		dataBar.ID=i;
-		dataBar.create();}
-}
-rawData.findOrder=function(){
-	var indexVal=0;
-	dataScoreOrder.sort(function(a, b){return b-a});
-	for(x=0;x<dataScore.length;x++){
-		indexVal=dataScore.indexOf(dataScoreOrder[x]);
-		if(dataScore[indexVal]>-1){
-			rawData.newRank[x]=indexVal;
-			dataScore[indexVal]=-1;
-		}
+		dataBar.create();
 	}
 }
-rawData.reOrderChart=function(){
-	rawData.findOrder();
-	var newPos=0;
-	for(x=0;x<rawData.newRank.length;x++){
-		newPos=x*20;
-		dataBar.htmlList[rawData.newRank[x]].style.top=""+newPos+"px";
-	}
-}
-//functions run
-//creates randomList
-rawData.rndGen();
 rawData.InitialOrder();
-rawData.reOrderChart();
+rawData.rndGen=function(){
+	for(y=0;y<3;y++){
+	for(x=0;x<100;x++){
+		rawData.inputList[y][x]=Math.round(Math.random()*9999)-4999;
+	}}
+rawData.InitialOrder();
+}
+//rawData.rndGen();
 
-//Lists for testing
-//rawData.dataList=[112073,96046,95809,87280,78630,69966,67579,61584,58685,41027,25942,25900,20814,18560,18156,16142,15301,12970,12602,12475,12371,12245,11917,12217,11536,11474,11200,9947,9850,9662,8475,7435,6788,6732,6610,6375,6343,6243,5896,5812,5604,5391,5138,4495,4215,4126,3944,3847,3447,3365,3203,3165,3107,2954,2855,2841,2832,2720,2593,2504,2455,2407,2324,2247,2199,2195,2120,2052,2039,1995,1974,1774,1758,1734,1731,1706,1666,1631,1587,1575,1567,1563,1418,1358,1350,1306,1238,1177,1157,1150,1139,1113,1091,1091,939,936,891,879,773,730,685,676,624,605,600,593,584,575,570,570,566,"555",548,548,528,516,434,377,375,343,310,306,302,298,212,194,193];
-//rawData.dataNames=["fox","horse","dragon","dog","wolf","pony","cat","rabbit","unicorn","pegasus","tiger","bear","lion","fish","robot","demon","lizard","goat","bat","shark","hedgehog","deer","monster","husky","mouse","snake","raccoon","skunk","leopard","otter","hyena75","squirrel","gryphon","cheetah","fennec","panda","sheep","rat","lynx","elf","zebra","kangaroo","jackal","turtle","sergal","chicken","monkey","panther","crocodile","imp","whale","chipmunk","coyote","alligator","raptor","orca","antelope","donkey","cougar","polar_bear","orc","collie","reindeer","frog","echidna","naga","owl","giraffe","rhinoceros","ferret","kobold","khajiit","duck","badger","elephant","opossum","tauren","boar","dolphin","tyrannosaurus_rex","gazelle","wyvern","jaguar","crow","cobra","octopus","weasel","buffalo","penguin","dingo","eagle","mongoose","mink","gorilla","harpy","gecko","lombax","beaver","triceratops","phoenix","hamster","serval","jackalope","ermine","falcon","armadillo","ocelot","moose","koala","salamander","hawk","raven","carb","porcupine","vulture","iguana","oryx","sloth","turkey","seal","llama","mole","elk","pigeon","platypus","python","manticore"];
-
+rawData.findOrder=function(y){
+	for (var i = 0; i < rawData.inputList[0].length; i++) {
+		for(z=0;z<rawData.inputList.length;z++){
+			newOrder[z][i]=rawOrder[z][i]=rawData.inputList[z][i];
+	}}
+	var indexVal=0;
+	newOrder[y].sort(function(a, b){return b-a});
+	for(x=0;x<rawOrder[y].length;x++){
+		indexVal=rawOrder[y].indexOf(newOrder[y][x]);
+		if(rawOrder[y][indexVal]!="click"){
+			rawData.placeValue[x]=indexVal;
+			rawOrder[y][indexVal]="click";
+		//new table
+		}	
+	}
+	//map of index value
+}
+rawData.reOrderChart=function(y){
+	rawData.InitialOrder();
+	rawData.findOrder(y);
+	backNS=rawData.placeValue.length-1;
+	for(x=0;x<rawData.placeValue.length;x++){
+		dataBar.name=rawData.rowNames[rawData.placeValue[x]];
+		if(dataBar.name==undefined){
+			dataBar.name=rawData.rowNames[rawData.placeValue[x]]="Lbl"+rawData.placeValue[x]+"";
+	}
+		//color
+		widthMax=maxHeight=Math.max.apply(Math, rawData.inputList[y]);
+		widthMin=minHeight=Math.min.apply(Math, rawData.inputList[y]);
+		middleZone=minHeight+maxHeight;
+		totalDomain=Math.abs(minHeight-maxHeight)/2;
+		xVal=newOrder[y][x];
+		redZone=(-(1/totalDomain)*(xVal-widthMin)*(xVal-widthMin)+totalDomain)/totalDomain;
+		greenZone=(-(1/totalDomain)*(xVal-middleZone)*(xVal-middleZone)+totalDomain)/totalDomain;
+		blueZone=(-(1/totalDomain)*(xVal-widthMax)*(xVal-widthMax)+totalDomain)/totalDomain;
+		newRed=redZone*255+100;
+		newGreen=greenZone*255+100;
+		newBlue=blueZone*255+100;
+		dataBar.htmlList[x].style.backgroundColor="rgb("+newRed+","+newGreen+","+newBlue+")";
+		//color
+		dataBar.htmlList[x].innerHTML=htmlPrep(
+			x,
+			rawData.rowNames[rawData.placeValue[x]],
+			rawData.inputList[0][rawData.placeValue[x]],
+			rawData.inputList[1][rawData.placeValue[x]],
+			rawData.inputList[2][rawData.placeValue[x]],
+			x,
+		);
+	}
+}
+rawData.newData=function(){
+	newValueName=document.getElementById('newValName').value;
+	newValueA=document.getElementById('newValA').value;
+	newValueB=document.getElementById('newValB').value;
+	newValueC=document.getElementById('newValC').value;
+	//parse 1
+	newValueName=newValueName.split(",");
+	newValueA=newValueA.split(",");
+	newValueB=newValueB.split(",");
+	newValueC=newValueC.split(",");
+	//parse 2
+	//parse end
+	rawData.inputList=[newValueA,newValueB,newValueC]
+	rawData.rowNames=newValueName;
+	rawData.InitialOrder();
+}
