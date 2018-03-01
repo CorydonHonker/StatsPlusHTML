@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Text game demo</title>
+		<meta charset="utf-8">
+		<link rel="stylesheet" type="text/css" href="TextGame.css" />
+	</head>
+	<body>
+		<div id="contentContainer">
+			<div id="overheadBar" class="Hborder">
+				<table class="topTable">
+					<tr>
+						<td id="namePlace" class="topData">
+							Name:_______
+						</td>
+						<td class="topData">
+							Nowhere
+						</td>
+						<td class="topData">
+							00:00
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div id="subBar" class="Hborder"></div>
+			<div id="rightBar" class="Lborder">
+				<table id="rightTable">
+					<tr><td>Number Pad</td></tr>
+					<tr>
+						<td>
+							<button class="numberPad" id="inputNum1">
+								1
+							</button>
+							<button class="numberPad" id="inputNum2">
+								2
+							</button>
+							<button class="numberPad" id="inputNum3">
+								3
+							</button>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<button class="numberPad" id="inputNum4">
+								4
+							</button>
+							<button class="numberPad" id="inputNum5">
+								5
+							</button>
+							<button class="numberPad" id="inputNum6">
+								6
+							</button>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<button class="numberPad" id="inputNum7">
+								7
+							</button>
+							<button class="numberPad" id="inputNum8">
+								8
+							</button>
+							<button class="numberPad" id="inputNum9">
+								9
+							</button>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<button class="numberPad" id="inputNumAst">
+								*
+							</button>
+							<button class="numberPad" id="inputNum0">
+								0
+							</button>
+							<button class="numberPad" id="inputNumPnd">
+								#
+							</button>
+						</td>
+					</tr>
+				</table>
+				<form class="userForm" id="form0" action = "form action">
+					<fieldset id="fieldBox">
+						<label>Custom Input</label>
+			  			<input id="inputBox" type = "text" value="" /><br/>
+			  			<input id="confirmButton" type="button" value="confirm"/>
+					</fieldset>
+				</form>
+			</div>
+			<div id="leftBar" class="Lborder">
+				<table class="leftTable">
+					<tr>
+						<td class="leftData">
+							Vitality
+						</td>
+						<td id="healthDisplay" class="leftData">
+							0
+						</td>
+					</tr>
+					<tr>
+						<td class="leftData">
+							Load Lbs.
+						</td>
+						<td id="loadDisplay" class="leftData">
+							0/0
+						</td>
+					</tr>
+					<tr>
+						<td class="leftData">
+							etc.
+						</td>
+						<td id="etc" class="leftData">
+							0
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class="centralPrt" id="userPrompt">Default</div>
+		</div>
+	<script src="tree.js"></script>
+	</body>
