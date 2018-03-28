@@ -1,7 +1,7 @@
 var canvas = document.getElementById("CanvasID");
 var ctx = canvas.getContext("2d");
 var c =canvas;
-var LWcanvas=512;
+var LWcanvas=255;
 var BorderBuffer=1;
 ctx.fillStyle = "rgba(255, 255, 255, 1)";
 ctx.fillRect(0,0,LWcanvas,LWcanvas);
@@ -83,6 +83,8 @@ var imgData=ctx.getImageData(0,0,c.width,c.height);
 	ctx.putImageData(imgData,0,0);
 }
 
+var colorRate=100;
+var colorStop=0;
 function noColors(){
 var imgData=ctx.getImageData(0,0,c.width,c.height);
 for(x=0;x<imgData.data.length;x+=4){
@@ -97,23 +99,23 @@ for(x=0;x<imgData.data.length;x+=4){
 		imgData.data[x+2]-=23;
 	}
 }
-	if(c.width*c.height==checkImage()){return 1;}
+	if(c.width*c.height==checkImage()||colorStop==1){colorStop=0;return 1;}
 	ctx.putImageData(imgData,0,0);
-	setTimeout(function(){noColors();},0);	
-}
+	setTimeout(function(){noColors();},colorRate);	
+}//line function
 function noLines(){
 var imgData=ctx.getImageData(0,0,c.width,c.height);
 var ArLength=imgData.data.length;
 var burnRate=10;
 for(x=0;x<ArLength;x+=4){
-	if(imgData.data[x-2-(c.width*4)]==0||imgData.data[x+2+(c.width*4)]==0||imgData.data[x-2]==0||imgData.data[x+6]==0){imgData.data[x]-=burnRate;}
-	if(imgData.data[x]==0){imgData.data[x+1]-=burnRate;}
-	if(imgData.data[x+1]==0){imgData.data[x+2]-=burnRate;}
+	if(imgData.data[x-4-(c.width*4)]==0||imgData.data[x+4+(c.width*4)]==0||imgData.data[x-4]==0||imgData.data[x+4]==0){imgData.data[x]-=burnRate;}
+	if(imgData.data[x-3-(c.width*4)]==0||imgData.data[x+5+(c.width*4)]==0||imgData.data[x-3]==0||imgData.data[x+5]==0){imgData.data[x+1]-=burnRate;}
+	if(imgData.data[x-2-(c.width*4)]==0||imgData.data[x+6+(c.width*4)]==0||imgData.data[x-2]==0||imgData.data[x+6]==0){imgData.data[x+2]-=burnRate;}
 }
-	if(c.width*c.height==checkImage()){return 1;}
+	if(c.width*c.height==checkImage()||colorStop==1){colorStop=0;return 1;}
 	ctx.putImageData(imgData,0,0);
-	setTimeout(function(){noLines();},0);	
-}
+	setTimeout(function(){noLines();},colorRate);	
+}//blob function
 function checkImage(){
 var imgData=ctx.getImageData(0,0,c.width,c.height);
 var count=0;
@@ -233,6 +235,7 @@ function MonoChrome(){
 	ctx.putImageData(imgData,0,0);
 }
 
+//INVERT
 function invertLoop(){
 var imgData=ctx.getImageData(0,0,c.width,c.height);
 	for (var i=0;i<imgData.data.length;i+=4){
@@ -242,4 +245,95 @@ var imgData=ctx.getImageData(0,0,c.width,c.height);
 		  imgData.data[i+3]=255;
 	}
 	ctx.putImageData(imgData,0,0);
+}
+asciiArray =[];
+for( var i = 0; i <= 128; i++ ){
+    asciiArray[i]=String.fromCharCode(i);
+};
+//
+INtrigger=511;
+INincrement=1;
+INColorRate=0;
+function invertLooped(){
+var imgData=ctx.getImageData(0,0,c.width,c.height);
+	for (var i=0;i<imgData.data.length;i+=4){		
+		  if(imgData.data[i]+INincrement>255){
+		  	imgData.data[i]-=255-INincrement;
+		  }else if(imgData.data[i]+INincrement<0){
+		  	imgData.data[i]+=255-INincrement;
+		  }else{imgData.data[i]+=INincrement;}
+
+		  if(imgData.data[i+1]+INincrement>255){
+		  	imgData.data[i+1]-=255-INincrement;
+		  }else if(imgData.data[i+1]+INincrement<0){
+		  	imgData.data[i+1]+=255-INincrement;
+		  }else{imgData.data[i+1]+=INincrement;}
+
+		  if(imgData.data[i+2]+INincrement>255){
+		  	imgData.data[i+2]-=255-INincrement;
+		  }else if(imgData.data[i+2]+INincrement<0){
+		  	imgData.data[i+2]+=255-INincrement;
+		  }else{imgData.data[i+2]+=INincrement;}
+		  //if(Math.floor(i%LWcanvas)==1){console.log("TRUE");}//255=length
+	}
+	ctx.putImageData(imgData,0,0);
+	if(INtrigger==-100){INtrigger=1;return 0;}//stop
+	if(INtrigger>0){
+		setTimeout(function(){invertLooped();},INColorRate);
+	}else{
+		INtrigger=511;
+		INincrement*=-1;
+		setTimeout(function(){invertLooped();},INColorRate);		
+	}
+	INtrigger--;
+}
+//INVERT END
+
+//ASCII
+asciiArray =[];
+for( var i = 0; i <= 128; i++ ){
+    asciiArray[i]=String.fromCharCode(i);
+};
+
+asciiOut=document.getElementById("output10");
+var trigger=999;
+var charSpace=255;
+//
+function textToImage(){
+	//code
+}
+function imageToText(){
+	var imgData=ctx.getImageData(0,0,c.width,c.height);
+	var outputT=0;
+	var Tsum=0;
+	var midpoint=128;
+	for(x=8;x<imgData.data.length;x+=4){
+		outputT=0;
+		outputT=Math.floor((61/500)*((imgData.data[x])+(imgData.data[x+1])+(imgData.data[x+2])));//RED,GREEN,BLUE
+		//if(outputT<33||outputT>126){outputT=48;}
+		//if(imgData.data[x]>128){outputT=48}else{outputT=49}
+		outputT+=33;
+		Tsum+=asciiArray[outputT];
+		//console.log(outputT);//213Char @ 9px font//2164;
+		fourX=Math.ceil(x/4);
+		if(x>1&&fourX%charSpace==0){Tsum+=asciiArray[32];}
+		//console.log(x>0&&x%charSpace==0)
+	}
+	//console.log(Tsum);
+	var Tsum=Tsum.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+	asciiOut.innerHTML=Tsum;
+	//loop
+	if(trigger==-100){trigger=1;return 0;}//stop
+	if(trigger>0){
+		setTimeout(function(){imageToText();},10);
+		trigger=999;	
+	}
+	trigger--;
+	//code
+}
+
+function stopLOOPS(){
+	trigger=-100;
+	INtrigger=-100;
+	colorStop=1;
 }
