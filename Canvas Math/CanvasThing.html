@@ -6,7 +6,7 @@
 		<link rel="stylesheet" type="text/css" href="canvasStyle.css" />
 	</head>
 	<body>	
-		<canvas id="CanvasID" width="512" height="512"></canvas>
+		<canvas id="CanvasID" width="255" height="255"></canvas>
 		<div id="buttonDiv">
 		<table>
 		<tr><td>
@@ -16,6 +16,7 @@
 		</td></tr>
 		<tr><td>
 		<button onclick="MonoChrome()">Mono Chromatic</button>
+		<button onclick="invertLoop()">Invert</button>
 		<button onclick="averagePixel()">Color average</button>
 		<button onclick="drawImage()">draw image</button>
 		</td></tr>
@@ -23,6 +24,7 @@
 		<button onclick="deltaColor(0,10)">add red</button>
 		<button onclick="deltaColor(1,10)">add green</button>
 		<button onclick="deltaColor(2,10)">add blue</button>
+		<button onclick="invertLooped()">Invert loop</button>
 		</td></tr>
 		<tr><td>
 		<button onclick="deltaColor(0,-10)">sub red</button>
@@ -33,6 +35,7 @@
 		<button onclick="noColors()">Black Lines</button>
 		<button onclick="noLines()">Black Blobs</button>
 		<button onclick="colorBias()">Black</button>
+		<button onclick="stopLOOPS()">STOP ALL</button>
 		</td></tr>
 		<tr><td>
 		<button onclick="gameOfLife(1)">1 Step</button>
@@ -42,6 +45,18 @@
 		</table>
 		</div>
 		<img class="hidSrc" id="srcImg" src=""/>
-		<script style="visibility: hidden" src="CanvasPlus.js"></script>
+		<div>
+				<form id="form0" class="form0" action = ">
+  		 <form action = ">
+			<fieldset> 
+			 	<label>Names</label>
+			  	<input id="dataIn" type="text" value="dataIn"/><br/>
+			  	<input onclick="textToImage()" type="button" value="Submit Data"/>
+			  	<input onclick="imageToText()" type="button" value="Output Data"/>
+				</fieldset>
+			</form>
+		<p id="output10">output10</p>
+		</div>
+		<script  src="CanvasPlus.js"></script>
 	</body>
 </html>
