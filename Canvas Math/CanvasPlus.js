@@ -1,11 +1,26 @@
+var fieldsetT = document.getElementById('fieldset12');
+var diNewWidth = document.getElementById('canvasWidthIn');
+var diNewHeight = document.getElementById('canvasHeightIn');
 var canvas = document.getElementById("CanvasID");
 var ctx = canvas.getContext("2d");
 var c =canvas;
-var LWcanvas=255;
 var BorderBuffer=1;
+//
+var canvasWidth = canvas.width;
+var canvasHeight = canvas.height;
 ctx.fillStyle = "rgba(255, 255, 255, 1)";
-ctx.fillRect(0,0,LWcanvas,LWcanvas);
-var pixelCount=(LWcanvas-BorderBuffer)*(LWcanvas-BorderBuffer);
+ctx.fillRect(0,0,canvasWidth,canvasHeight);
+var pixelCount=(canvasWidth-BorderBuffer)*(canvasHeight-BorderBuffer);
+//Dimentions
+function newDimentions(){
+	canvas.height=diNewHeight.value;
+	canvas.width=diNewWidth.value;
+	canvasWidth = canvas.width;
+	canvasHeight = canvas.height;
+	ctx.fillStyle = "rgba(255, 255, 255, 1)";
+	ctx.fillRect(0,0,canvasWidth,canvasHeight);
+	pixelCount=(canvasWidth-BorderBuffer)*(canvasHeight-BorderBuffer);
+}
 
 function gameOfLife(steps){
 var imgData=ctx.getImageData(0,0,c.width,c.height);
@@ -46,14 +61,19 @@ function UploadPrt()
     var inputFileToLoad = document.createElement("input");
     inputFileToLoad.type = "file";
     inputFileToLoad.id = "inputFileToLoad";
-    document.body.appendChild(inputFileToLoad);
+    fieldsetT.appendChild(inputFileToLoad);
 
     var buttonLoadFile = document.createElement("button");
     buttonLoadFile.onclick = loadImageFileAsURL;
     buttonLoadFile.textContent = "Load Selected File";
-    document.body.appendChild(buttonLoadFile);
-}
+    fieldsetT.appendChild(buttonLoadFile);
 
+    var drawImg = document.createElement("button");
+    drawImg.onclick = drawImage;
+    drawImg.textContent = "draw image";
+    fieldsetT.appendChild(drawImg);
+}
+//<button onclick="drawImage()">draw image</button>
 function loadImageFileAsURL()
 {
     var filesSelected = document.getElementById("inputFileToLoad").files;
@@ -130,34 +150,31 @@ var aveRed=0;
 var aveGreen=0;
 var aveBlue=0;
 function averagePixel(){
-	for(y=BorderBuffer;y<LWcanvas-BorderBuffer;y++){
-		for(x=BorderBuffer;x<LWcanvas-BorderBuffer;x++){
+	for(y=BorderBuffer;y<canvasHeight-BorderBuffer;y++){
+		for(x=BorderBuffer;x<canvasWidth-BorderBuffer;x++){
 			imgData=ctx.getImageData(x,y,1,1);
 			aveRed+=imgData.data[0];
 			aveGreen+=imgData.data[1];
 			aveBlue+=imgData.data[2];	
 		}
 	}
-		
 		aveRed=Math.floor(aveRed/pixelCount);
 		aveGreen=Math.floor(aveGreen/pixelCount);
 		aveBlue=Math.floor(aveBlue/pixelCount);
 
 		//console.log(aveRed,aveGreen,aveBlue,pixelCount);
 		ctx.fillStyle ="rgba("+aveRed+","+aveGreen+","+aveBlue+", 1)";
-		ctx.fillRect(0,0,LWcanvas,LWcanvas);
-
-	
+		ctx.fillRect(0,0,canvasWidth,canvasHeight);
 }
 
 function drawImage(){
 	var img=document.getElementById("srcImg");
-	ctx.drawImage(img,0,0,LWcanvas,LWcanvas);
+	ctx.drawImage(img,0,0,canvasWidth,canvasHeight);
 }
 
 function colorBias(){		
 	ctx.fillStyle ="rgba(0,0,0, 1)";
-	ctx.fillRect(0,0,LWcanvas,LWcanvas);
+	ctx.fillRect(0,0,canvasWidth,canvasHeight);
 }
 
 var rndRed;
@@ -193,8 +210,8 @@ function rndRainbow(){
 
 
 function rndGen(){
-	for(y=BorderBuffer;y<LWcanvas-BorderBuffer;y++){
-		for(x=BorderBuffer;x<LWcanvas-BorderBuffer;x++){	
+	for(y=BorderBuffer;y<canvasHeight-BorderBuffer;y++){
+		for(x=BorderBuffer;x<canvasWidth-BorderBuffer;x++){	
 			rndPixel=Math.floor(Math.random() * 110);
 			imgData=ctx.getImageData(x,y,1,1);
 			if(rndPixel>70){
@@ -274,7 +291,7 @@ var imgData=ctx.getImageData(0,0,c.width,c.height);
 		  }else if(imgData.data[i+2]+INincrement<0){
 		  	imgData.data[i+2]+=255-INincrement;
 		  }else{imgData.data[i+2]+=INincrement;}
-		  //if(Math.floor(i%LWcanvas)==1){console.log("TRUE");}//255=length
+		  //if(Math.floor(i%canvasWidth)==1){console.log("TRUE");}//255=length
 	}
 	ctx.putImageData(imgData,0,0);
 	if(INtrigger==-100){INtrigger=1;return 0;}//stop
@@ -330,8 +347,27 @@ function imageToText(){
 	}
 	trigger--;
 	//code
-}
-
+}//IMG-TXT END
+//HEATMAP SRT
+function heatMap(rgbChannel){
+if(rgbChannel!=0&&rgbChannel!=1&&rgbChannel!=2){return 1;}
+var imgData=ctx.getImageData(0,0,c.width,c.height);
+		for (var i=0;i<imgData.data.length;i+=4){
+		pixHeat=0;
+		if(i+rgbChannel-c.width*4-4>-1){pixHeat+=imgData.data[i+rgbChannel-c.width*4-4];}else{pixHeat+=128};
+		if(i+rgbChannel-c.width*4>-1){pixHeat+=imgData.data[i+rgbChannel-c.width*4]}else{pixHeat+=128};
+		if(i+rgbChannel-c.width*4+4>-1){pixHeat+=imgData.data[i+rgbChannel-c.width*4+4];}else{pixHeat+=128};
+		if(i+rgbChannel-4>-1){pixHeat+=imgData.data[i+rgbChannel-4];}else{pixHeat+=128};
+		pixHeat+=imgData.data[i+rgbChannel];
+		if(i+rgbChannel+4>-1){pixHeat+=imgData.data[i+rgbChannel+4];}else{pixHeat+=128};
+		if(i+rgbChannel+c.width*4-4>-1){pixHeat+=imgData.data[i+rgbChannel+c.width*4-4];}else{pixHeat+=128};
+		if(i+rgbChannel+c.width*4>-1){pixHeat+=imgData.data[i+rgbChannel+c.width*4];}else{pixHeat+=128};
+		if(i+rgbChannel+c.width*4+4>-1){pixHeat+=imgData.data[i+rgbChannel+c.width*4+4];}else{pixHeat+=128};
+		//
+		imgData.data[i+rgbChannel]=pixHeat*0.11111;
+	}//range 0-2295 //resoution 9 per 1
+	ctx.putImageData(imgData,0,0);
+}//HEATMAP END
 function stopLOOPS(){
 	trigger=-100;
 	INtrigger=-100;
