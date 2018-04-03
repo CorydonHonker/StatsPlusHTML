@@ -23,11 +23,18 @@ td{
 .hidSrc{
  display: none;
 }
-.output10{
-	max-width: 100%;
+.imgTxtMenu{
+    float: left;
+	width: 1277px;
+	max-width: 1277px;
 	overflow-x: auto;
 	word-wrap:break-word;
 }
 body{
 	font-family: "Courier New", Courier, monospace;
+}
+p{
+	max-width: 200px;
+    border-style: solid;
+    border-width: 1px;	
 }
