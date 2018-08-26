@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>[IMG score sorter]</title>
+	<HTA:APPLICATION
+        APPLICATIONNAME = "HTA_ALPHA"
+		ICON = "jester.ico"
+		ID="HTA_ALPHA"
+    />
+</head>
+
+<script language="VBScript" type="text/vbscript" src="alphaVBS.vbs"></script>
+
+<body style="background-color:lightgray ">
+	<div>
+		<table style="border:black solid 1px;background-color:black">
+			<tr>
+				<td style="border:blue solid 1px;background-color: lightblue">
+					<input type="button" value="Is it?" onClick="sayHello"/>
+					<input type="button" value="Input" onClick="folderSelecter()"/>
+					<input type="button" value="Output" onClick="folderSelecterOut()"/>
+				</td>	
+				<td style="border:blue solid 1px;background-color: lightblue">
+					<input type="button" value="(+)ADD" onClick="rankImg(1)"/>
+					<input type="button" value="(-)MINUS" onClick="rankImg(-1)"/>
+					<input type="button" value="(x)SKIP" onClick="newImg()"/>
+				</td>
+				<td style="border:blue solid 1px;background-color: lightblue">
+					<input type="button" value="inc+" onclick="increment(1)">
+					<input type="button" value="inc-" onclick="increment(-1)">
+				</td>	
+				<td style="border:blue solid 1px;background-color: lightblue">
+					ImgScore
+					<p id="imgScore" style="margin:0px">0</p>
+				</td>
+				<td style="border:blue solid 1px;background-color: lightblue" id="myInfoBloc">
+					info
+				</td>
+			</tr>
+		</table>
+	<div>
+		<p style="border:black solid 1px;max-width:70%" >info</p>
+		<p width=270 height=120 style="float:right;border:black solid 1px;max-width:290px;min-width:120px;max-height:450px;min-height:120px;overflow-y:scroll;overflow-x:hidden" id="dataArea">data</p>
+	</div>
+	</div>
+	<div width=800 height=450>
+		<img id="imgArea" style="border:black solid 1px;max-width:800px;max-height:450px;background-color: black"  src="jester.ico"/>
+	</div>
+</body>
+
+</html>
