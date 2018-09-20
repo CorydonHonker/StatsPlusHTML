@@ -1,18 +1,20 @@
+
 <!doctype html>
 <html>
 	<head>
-		<title>alphabet milkshake!</title>
-		<meta charset="utf-16">
+		<title>UniCode V5</title>
+		<meta charset="utf-8">
 	</head>
 	<body style="background-color:lightgray">	
 	<form>
 		<input id="inputMsg" type="text" value="Your Message Here"/>
 		<input id="inputPass" type ="text" value="Your Password Here" /><br/>
-		<input onclick="" type="button" value="Encrypt"/>
-		<input onclick="" type="button" value="Decrypt"/>
+		<input onclick="normalEncryption(1)" type="button" value="Encrypt" />
+		<input onclick="normalEncryption(-1)" type="button" value="Decrypt"/><input onclick="uniEncrypt(1)" type="button" value="EncryptUni" />
+		<input onclick="uniEncrypt(-1)" type="button" value="DecryptUni"/>
 		<input onclick="" type="button" value="Test"/>
 	</form>
-	<p id=outputMsg></p>
+	<pre id=outputMsg></pre>
 	<script src="uniV5.js"></script>
 	</body>
 </html>
