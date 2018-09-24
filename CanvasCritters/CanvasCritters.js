@@ -1,15 +1,19 @@
 var keyPressedTF=[];
+var actorArray=[];
 var c = document.getElementById("myCanvas");
 var ctx = c.getContext("2d");
 var hiddenSrc = document.getElementById('hiddenSrc');
+//
+ctx.fillStyle = "#FFFFFF";
+ctx.fillRect(0,0,512,512);
 //
 mouseX=mouseY=c.width/2;
 RadTDeg=Math.PI/180;
 debugGame=1;
 updateTime=10;
+pauseGame=0;
+uniqueObjId=0;
 ///=====start functions=====///
-ctx.fillStyle = "#FFFFFF";
-ctx.fillRect(0,0,512,512);
 function drawLine(xA,yA,xB,yB){	
 	ctx.lineWidth=2;	
 	ctx.beginPath();
@@ -24,61 +28,25 @@ function drawCircle(x,y,r,startAngle,endAngle,counterclockwise){
 	//ctx.strokeStyle = "rgba(0,0,0,1)";
 	ctx.stroke(); 
 }
-function drawTxt(x,y,pixA,pixB,myTxt){
-	ctx.textAlign = "start";
-	ctx.font = pixB+"px Arial";
-	//fill
-	ctx.fillStyle = "#000000";
-	ctx.fillText(myTxt,x,y);
-	//stroke
-	ctx.strokeStyle="#00FFFF";
-	ctx.lineWidth=0.5;
-	ctx.strokeText(myTxt,x,y);
-}
-function yInt(x){
-	//y=32*Math.sin(x/32)+Math.PI*64
-	//y=-511/(x+1)+100;
-	y=40*Math.random()+c.height/3;
-	return y;
-}
-function graphingA(step){
-	x=0;
-	y=yInt(x);
-	ctx.lineWidth=1.5;
-	ctx.beginPath();
-	ctx.moveTo(x,-1*(y-c.width));
-	for(x;x<c.width&&y<c.height;x+=step){		
-		y=yInt(x);
-		yB=-1*(y-c.width);
-		ctx.lineTo(x,yB);
-	}
-	ctx.strokeStyle = "rgba(0,0,0,1)";
-	ctx.stroke();
-}
 function drawGrid(scale){
 	ctx.strokeStyle = "rgba(200,200,200,0.5)";//modifyed[Y]=-1*(y-c.width)
 	for(x=0;x<c.width;x+=scale){drawLine(x,0,x,c.height);}
 	for(y=0;y<c.height;y+=scale){drawLine(0,y,c.width,y);}
 }
-function invertLoop(){
-var imgData=ctx.getImageData(0,0,c.width,c.height);
-	for (var i=0;i<imgData.data.length;i+=4){
-		  imgData.data[i]=255-imgData.data[i];
-		  imgData.data[i+1]=255-imgData.data[i+1];
-		  imgData.data[i+2]=255-imgData.data[i+2];
-		  imgData.data[i+3]=255;
-	}
-	ctx.putImageData(imgData,0,0);
+function drawImg(xA,yA,w,h,mySrc){
+	img = document.getElementById(resourceArr[mySrc][0]);
+	ctx.drawImage(img,xA,yA,w,h);
 }
 function myNewCanvas(w,h){
 	c.width = w;
 	c.height = h;
 }
-//===IMAGES-&-stuff===//
+//===IMAGES-&-RESOURCES===//
 var resourceArr=[//  [ID,src]
 	["modelA","imgSrc/modelA.png"],
 	["modelB","imgSrc/modelB.png"],
-	["modelC","imgSrc/modelC.png"]
+	["modelC","imgSrc/modelC.png"],
+	["bulletA","imgSrc/bulletA.jpg"]
 ];
 function addImgResources(){
 	for(x=0;x<resourceArr.length;x++){
@@ -88,97 +56,145 @@ function addImgResources(){
 		hiddenSrc.appendChild(newSrc);
 }}
 addImgResources();
-function drawImg(xA,yA,w,h,mySrc){
-	img = document.getElementById(resourceArr[mySrc][0]);
-	ctx.drawImage(img,xA,yA,w,h);
+///======Objects-Classes======///
+function genericEnt(){
+	this.locate = function(target){
+		drawLine(this.xPos,this.yPos,target.xPos,target.yPos);
+	}	
+	this.ptpTest = function(x,y){
+		this.xPosAI=x;
+		this.yPosAI=y;
+
+		xDif=x-this.xPos;
+		yDif=y-this.yPos;
+		//
+		while(Math.abs(xDif)>2||Math.abs(yDif)>2){xDif*=0.9;yDif*=0.9;}
+		//
+		this.xSpeed=xDif;
+		this.ySpeed=yDif;//console.log(xDif,yDif);
+	}
+	this.aimTarget = function(target){
+		yDif=this.yPos-target.yPos;
+		xDif=this.xPos-target.xPos;
+		slope=yDif/xDif;
+		angle=Math.atan(slope)*(180/Math.PI);
+		//
+		if(angle<0){
+			if(yDif<0){angle=angle+180;
+			}else{angle=angle+360;}
+		}else if(xDif>0){angle=angle+180;}
+		//
+		this.angleAI=angle;
+	}
+	this.debugAlpha =function(){
+		ctx.strokeStyle = "rgba(90,20,65,1)";
+		//actorArray[actorVal].locate(actorB);
+		//drawSightline()
+		length=50;
+		x=Math.cos(this.angle*RadTDeg)*length+this.xPos;
+		y=Math.sin(this.angle*RadTDeg)*length+this.yPos;
+		//
+		ctx.strokeStyle = "rgba(255,0,0,0.5)";
+		drawLine(this.xPos,this.yPos,x,y);
+		//graphSpeed()
+		endX=this.xPos+30*this.xSpeed;
+		endY=this.yPos+30*this.ySpeed;
+		ctx.strokeStyle = "rgba(0,255,0,0.5)";
+		drawLine(this.xPos,this.yPos,endX,endY);
+		//draw Destination
+		ctx.strokeStyle = "rgba(0,0,255,0.4)";
+		drawLine(actorArray[actorVal].xPos,actorArray[actorVal].yPos,actorArray[actorVal].xPosAI,actorArray[actorVal].yPosAI);
+		ctx.fillStyle = "rgba(255,255,0,1)";
+		drawCircle(actorArray[actorVal].xPosAI,actorArray[actorVal].yPosAI,5,0,Math.PI*2,0);
+	}	
+	this.objectDie = function(){
+		this.lifeTime-=updateTime;//console.log(this.lifeTime);console.log("die");
+		if(this.lifeTime<0){return 7;}
+	}
+	this.objSelfRemove = function(){
+			actorArray.splice(this.objArrPos(),1);//console.log("Bullet arrPos:",this.objArrPos());
+	}
+	this.objArrPos = function(){
+		return actorArray.indexOf(this);
+	}
 }
-///======hitboxes-&-AI======///
-var actorA = new Object();
-actorA.model=0;
-actorA.xPos=100;
-actorA.yPos=100;
-actorA.width=25;
-actorA.height=25;
-actorA.xPosModel=actorA.xPos-actorA.width*0.5;
-actorA.yPosModel=actorA.yPos-actorA.height*0.5;
-actorA.xSpeed=0;
-actorA.ySpeed=0;
-actorA.angleSpeed=0;
-actorA.angle=0;
-actorA.xPosAI=actorA.xPos;
-actorA.yPosAI=actorA.yPos;
-actorA.angleAI=actorA.angle;
-//==new-actor==//
-var actorB = new Object();
-actorB.model=1;
-actorB.xPos=150;
-actorB.yPos=150;
-actorB.width=39;
-actorB.height=39;
-actorB.xPosModel=actorB.xPos-actorB.width*0.5;
-actorB.yPosModel=actorB.yPos-actorB.height*0.5;
-actorB.xSpeed=0;
-actorB.ySpeed=0;
-actorB.angleSpeed=0;
-actorB.angle=0;
-actorB.xPosAI=actorB.xPos;
-actorB.yPosAI=actorB.yPos;
-actorB.angleAI=actorB.angle;
-//==new-actor==//
-var actorC = new Object();
-actorC.model=2;
-actorC.xPos=175;
-actorC.yPos=75;
-actorC.width=31;
-actorC.height=31;
-actorC.xPosModel=actorC.xPos-actorC.width*0.5;
-actorC.yPosModel=actorC.yPos-actorC.height*0.5;
-actorC.xSpeed=0;
-actorC.ySpeed=0;
-actorC.angleSpeed=0;
-actorC.angle=0;
-actorC.xPosAI=actorC.xPos;
-actorC.yPosAI=actorC.yPos;
-actorC.angleAI=actorC.angle;
+function Projectile(ID,arrPos,ParentName,name,model,xPos,yPos,width,height,xSpeed,ySpeed,angleSpeed,angle,speed,range,lifeTime){
+	genericEnt.call(this);
+	this.uniqueObjId=ID;
+	this.lifeTime=lifeTime;
+	this.arrPos=arrPos;
+	this.ParentName=ParentName;
+	this.ActorName=name;
+	this.model=model;
+	this.xPos=xPos;
+	this.yPos=yPos;
+	this.width=width;
+	this.height=height;
+	this.xPosModel=this.xPos-this.width*0.5;
+	this.yPosModel=this.yPos-this.height*0.5;
+	this.xSpeed=xSpeed;
+	this.ySpeed=ySpeed;
+	this.angleSpeed=angleSpeed;
+	this.angle=angle;
+	this.xPosAI=this.xPos;
+	this.yPosAI=this.yPos;
+	this.angleAI=this.angle;
+	this.bulletSpeed=speed;
+	this.bulletRange=range;
+}
+function Actor(ID,arrPos,name,model,xPos,yPos,width,height,xSpeed,ySpeed,angleSpeed,angle,lifeTime){
+	genericEnt.call(this);
+	this.uniqueObjId=ID;
+	this.lifeTime=lifeTime;
+	this.arrPos=arrPos;
+	this.className="Actor";
+	this.ActorName=name;
+	this.model=model;
+	this.xPos=xPos;
+	this.yPos=yPos;
+	this.width=width;
+	this.height=height;
+	this.xPosModel=this.xPos-this.width*0.5;
+	this.yPosModel=this.yPos-this.height*0.5;
+	this.xSpeed=xSpeed;
+	this.ySpeed=ySpeed;
+	this.angleSpeed=angleSpeed;
+	this.angle=angle;
+	this.xPosAI=this.xPos;
+	this.yPosAI=this.yPos;
+	this.angleAI=this.angle;
+	this.launchProjectile = function(){
+		//Projectile(uniqueObjId,arrPos,ParentName,name,model,xPos,yPos,width,height,xSpeed,ySpeed,angleSpeed,angle,speed,range,lifeTime)
+		actorArray[actorArray.length] = new Projectile(uniqueObjId++,0,this.ActorName,"GenericBullet",3,this.xPos,this.yPos,10,10,0,0,0,this.angle,4,100,2000);
+		//
+		newXPosAI=actorArray[actorArray.length-1].bulletRange*actorArray[actorArray.length-1].bulletSpeed*Math.cos(this.angle*RadTDeg)+this.xPos;
+		newYPosAI=actorArray[actorArray.length-1].bulletRange*actorArray[actorArray.length-1].bulletSpeed*Math.sin(this.angle*RadTDeg)+this.yPos;
+		actorArray[actorArray.length-1].ptpTest(newXPosAI,newYPosAI);
+	}
+	this.aimMouse = function(x,y){
+		yDif=this.yPos-y;
+		xDif=this.xPos-x;
+		slope=yDif/xDif;
+		angle=Math.atan(slope)*(180/Math.PI);
+		//
+		if(angle<0){
+			if(yDif<0){angle=angle+180;
+			}else{angle=angle+360;}
+		}else if(xDif>0){angle=angle+180;}
+		//
+		this.angleAI=angle;
+	}
+}
+//Actor(uniqueObjId,name, model,xPos,yPos,width,height,xSpeed,ySpeed,angleSpeed,angle,lifetime)
+var actorA = actorArray[actorArray.length] = new Actor(uniqueObjId++,0,"Turret",0,85,135,31,31,0,0,8,0,Infinity);
+var actorB = actorArray[actorArray.length] =  new Actor(uniqueObjId++,0,"Player",0,130,120,25,25,0,0,8,0,Infinity);
+var actorC = actorArray[actorArray.length] =  new Actor(uniqueObjId++,0,"AutoTurret",0,80,100,27,27,0,0,8,0,Infinity);
 //
-var actorArray=[actorA,actorB,actorC];
+// arr.splice(position, # of elements); 
+//removes element from arr
+// arr.push(element); 
+//adds element to end of arr
 ///===ACTOR-functions===///
-function drawSightline(actor){
-	length=50;
-	x=Math.cos(actor.angle*RadTDeg)*length+actor.xPos;
-	y=Math.sin(actor.angle*RadTDeg)*length+actor.yPos;
-	//
-	drawLine(actor.xPos,actor.yPos,x,y);
-}
-function graphSpeed(actor){
-	endX=actor.xPos+30*actor.xSpeed;
-	endY=actor.yPos+30*actor.ySpeed;
-	drawLine(actor.xPos,actor.yPos,endX,endY);
-}
-function ptpTest(actor,x,y){
-	actor.xPosAI=x;
-	actor.yPosAI=y;
-	xDif=x-actor.xPos;
-	yDif=y-actor.yPos;
-	//
-	while(Math.abs(xDif)>2||Math.abs(yDif)>2){xDif*=0.9;yDif*=0.9;}
-	//
-	actor.xSpeed=xDif;
-	actor.ySpeed=yDif;//console.log(xDif,yDif);
-}
-function aimTarget(aimer,target){
-	yDif=aimer.yPos-target.yPos;
-	xDif=aimer.xPos-target.xPos;
-	slope=yDif/xDif;
-	angle=Math.atan(slope)*(180/Math.PI);
-	//
-	if(angle<0){
-		if(yDif<0){angle=angle+180;
-		}else{angle=angle+360;}
-	}else if(xDif>0){angle=angle+180;}
-	//
-	aimer.angleAI=angle;
-}
 function updateActors(actor){
 	angDif=actor.angle-actor.angleAI;
 	if(Math.abs(angDif)>1){
@@ -203,50 +219,51 @@ function updateActors(actor){
 	actor.xPosModel=actor.xPos-actor.width*0.5;
 	actor.yPosModel=actor.yPos-actor.height*0.5;
 }
-function locate(actorX,actorY){
-	drawLine(actorX.xPos,actorX.yPos,actorY.xPos,actorY.yPos);
-}
 ///======drawing-actors===///
+var cleanupList=[];
 function drawActors(){
-	for(actorVal=0;actorVal<actorArray.length;actorVal++){//console.log(actorVal,actorArray.length);
+	actorC.aimTarget(actorB);
+	for(actorVal=0;actorVal<actorArray.length;actorVal++){
 		updateActors(actorArray[actorVal]);
 		//
 		drawImg(actorArray[actorVal].xPosModel,actorArray[actorVal].yPosModel,actorArray[actorVal].width,actorArray[actorVal].height,actorArray[actorVal].model);
 		//
-	if(debugGame==1){
-		ctx.strokeStyle = "rgba(255,0,0,1)";
-		graphSpeed(actorArray[actorVal]);
-		ctx.strokeStyle = "rgba(0,0,255,1)";
-		drawSightline(actorArray[actorVal]);
-		//
-		ctx.strokeStyle = "rgba(0,255,0,0.5)";
-		drawLine(actorArray[actorVal].xPos,actorArray[actorVal].yPos,actorArray[actorVal].xPosAI,actorArray[actorVal].yPosAI);
-		ctx.fillStyle = "rgba(0,0,0,1)";
-		drawCircle(actorArray[actorVal].xPosAI,actorArray[actorVal].yPosAI,5,0,Math.PI*2,0);
-		ctx.fillStyle = "rgba(255,0,0,0.5)";
-		drawCircle(actorArray[actorVal].xPos,actorArray[actorVal].yPos,10,0,Math.PI*2,0);
-	}}
+	if(debugGame==1){actorArray[actorVal].debugAlpha();}
+	//death
+	if(actorArray[actorVal].objectDie()==7){
+		cleanupList.push(actorArray[actorVal]);
+	}
+	}
+}
+function clearTheDead(){
+	//cleanupLoop
+	for(i=cleanupList.length-1;i>-1;i--){
+		//console.log(cleanupList.length,i,cleanupList[i].objArrPos());
+		cleanupList[i].objSelfRemove();
+	}
+	cleanupList=[];
 }
 ///======drawing-Canvas===///
 function drawCanvas(){
 	myNewCanvas(c.width,c.height);
-	//
-	drawActors();
-	aimTarget(actorC,actorB);
 	drawGrid(50);
 	//
-	setTimeout(function(){drawCanvas();},updateTime)
+	drawActors();
+	//
 }
-//end functions
-drawCanvas();
 //============keyPattern============//
+keyCooldownV=0;
 function keyPattern(){
+	keyCooldownV-=1;
 	if(keyPressedTF[90]){//console.log("z");
-	actorA.angleAI+=1;
 	};
-	if(keyPressedTF[77]){//console.log("m");
+	if(keyPressedTF[88]){//console.log("m");
 	};
 	if(keyPressedTF[86]){//console.log("v");
+		if(keyCooldownV<0){
+			actorA.launchProjectile();
+			keyCooldownV=20;
+		}//console.log(keyCooldownV);
 	};
 	if(keyPressedTF[87]&&!keyPressedTF[83]){//console.log("w");
 	}
@@ -264,22 +281,26 @@ function keyPattern(){
 	}
 	if(!keyPressedTF[37]&&keyPressedTF[39]){//console.log("right");
 	}
-	setTimeout(keyPattern,updateTime);
 }
-//events
+///###########_MAIN_LOOP_##########///
+function gameLoop(){
+	if(pauseGame==0){
+		clearTheDead();
+		drawCanvas();
+		keyPattern();
+	}
+	setTimeout(function(){gameLoop();},updateTime);
+}
+///===events===///
 document.getElementById("bodyTag").addEventListener(
 	'keydown',
 	function(event){
-		//console.log("keydown");
-		//console.log("+"+String.fromCharCode(event.which)+" "+event.which);
 		keyPressedTF[event.which]=true;
 });
 //
 document.getElementById("bodyTag").addEventListener(
 	'keyup',
 	function(event){
-		//console.log("keyup");
-		//console.log("-"+String.fromCharCode(event.which));
 		keyPressedTF[event.which]=false;
 });
 c.addEventListener(
@@ -288,6 +309,14 @@ c.addEventListener(
 		rect = c.getBoundingClientRect();
 		mouseX=event.clientX-parseInt(rect.left);
 		mouseY=event.clientY-parseInt(rect.top);
-		ptpTest(actorB,mouseX,mouseY);
+		actorB.ptpTest(mouseX,mouseY);
 })
-keyPattern();
+c.addEventListener(
+	"mousemove",
+	function(event){
+		rect = c.getBoundingClientRect();
+		mouseX=event.clientX-parseInt(rect.left);
+		mouseY=event.clientY-parseInt(rect.top);
+		actorA.aimMouse(mouseX,mouseY);
+});
+gameLoop();
