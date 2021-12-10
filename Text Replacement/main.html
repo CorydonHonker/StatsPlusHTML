@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html><head>
+	<title>my HTML</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="main.css"/>
+</head><body>
+	<div id="myDisplay">
+		<p>Text replacer</p>
+	</div>
+	<table><tr><td>
+		<textarea id="inputStr"></textarea>
+	</td><td>
+		<div id="myControls">
+			<p>Controls</p>
+					<table><tr><td>
+						<input id="this_id" type="text" placeholder="This becomes..."> >>> 
+						<input id="that_id" type="text" placeholder="That">
+						<button type="button" id="addStr" onclick="updateDict()">Add Replacement</button>
+					</td></tr><tr><td>
+						<div id="changeList">
+							<div class="changeList"  id="this_id">
+								<button type="button">remove</button>
+								<b>this: that_0, that_1, that_2</b>
+							</div>
+							<div class="changeList"  id="this1_id">
+								<button type="button">remove</button>
+								<b>this_1: that_0, that_1, that_2</b>
+							</div>
+						</div>
+					</td></tr></table>
+				</div>
+			</td>
+			<td>
+				<textarea id="outputStr"></textarea>
+			</td>
+		</tr>
+	</table>
+	<script src="main.js"></script>
+</body></html>

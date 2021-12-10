@@ -1,0 +1,39 @@
+body {
+	background-color: brown;
+	color: white;
+}
+
+#myCanvas {
+	background-color: white;
+	border:black solid 1px;
+}
+
+p {
+	text-align: center;
+}
+
+#myControls {
+	background-color: black;
+	min-width: 120px;
+	border:black solid 1px;
+}
+
+table, th, td {
+	border: 1px solid black;
+}
+
+textarea {
+	background-color: black;
+	color:white;
+	min-width:320px;
+	min-height:440px
+}
+
+.changeList {
+	border: 1px solid white;
+}
+
+#changeList {
+	max-height:1000px;
+	overflow-y:scroll;
+}
